@@ -1,20 +1,26 @@
-#include "dependency/shell.h"
+#include "shell.h"
 
 char *shell_read()
 {
     char *line = NULL;
-    size_t buffer_size = NULL;
-    if (getline(&line, &buffer_size, stdin) == -1)
+    size_t buffer_size;
+    char cwd[BUFSIZ];
+
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
     {
+        perror("getcwd_error");
+        return NULL;
+    }
+
+    printf(C ":) %s (:" RST "$> ", cwd);
+    if (getline(&line, &buffer_size, stdin) == -1)
+    {   
+        line = NULL;
         if (feof(stdin))
-        {
-            print(f"C-Shell: EOF received, exiting...\n"););
-        }
+            printf(R "[EOF]\n" RST);
         else
-        {
-            perror("C-Shell: getline");
-            exit(EXIT_FAILURE);
-        }
+        printf(R "getline_error" RST);
+        
     }
     return line;
 }
@@ -28,10 +34,9 @@ int main(int argument, char **variables)
 
     while (1)
     {
-        printf("C-Shell> ");
-        line = shell_read
-        line = NULL;
-        size_t buffer_size = 0;
+        printf(" | C-Shell | ");
+        line = shell_read();
+        printf("%s\n",line);
         
         // ... rest of the code
     }
