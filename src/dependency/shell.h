@@ -8,6 +8,7 @@
 # include <errno.h>
 # include <string.h>
 # include <sys/wait.h>
+# include <sys/utsname.h>
 # include <sysexits.h>
 
 # define Y "\033[1;33m"
@@ -23,7 +24,8 @@ typedef struct s_builtin{
     int (*function)(char **args);
 } t_buildin;
 
-// int shell_cd(char **args);
+int shell_cd(char **args);
+int shell_fetch(char **args);
 // int shell_help(char **args);
 int shell_exit(char **args);
 
