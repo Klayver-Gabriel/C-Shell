@@ -1,7 +1,8 @@
 #include "../dependency/shell.h"
 
 t_buildin g_builtins[] = {
-    // {"cd", shell_cd},
+    {"cd", shell_cd},
+    {"fetch", shell_fetch},
     // {"help", shell_help},
     {"exit", shell_exit},
     {NULL, NULL}
@@ -21,7 +22,7 @@ void shell_launch(char **args){
 char *shell_read()
 {
     char *line = NULL;
-    size_t buffer_size;
+    size_t buffer_size = 0;
     char cwd[BUFSIZ];
 
     Getcwd(cwd, sizeof(cwd));

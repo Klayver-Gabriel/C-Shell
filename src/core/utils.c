@@ -116,15 +116,18 @@ pid_t	Fork(void)
 
 void Execvp(const char *file, char *const argv[])
 {
-	if (!file || !argv)
+	if (!argv || !file)
 	{
 		fprintf(stderr, R "Execvp: invalid arguments\n" RST);
 		exit(EXIT_FAILURE);
 	}
 	if (execvp(file, argv) == -1)
 	{
-		perror(R "Execvp failed" RST);
-		exit(EX_UNAVAILABLE);
+		if (errno == ENOENT)
+			fprintf(stderr, R "%s: command not found\n" RST, file);
+		else
+			fprintf(stderr, R "%s: %s\n" RST, file, strerror(errno));
+		exit(127);
 	}
 }
 
