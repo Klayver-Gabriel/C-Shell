@@ -1,4 +1,22 @@
-#include "shell.h"
+#include "../dependency/shell.h"
+
+t_buildin g_builtins[] = {
+    // {"cd", shell_cd},
+    // {"help", shell_help},
+    {"exit", shell_exit},
+    {NULL, NULL}
+};
+
+int status = 0;
+
+void shell_launch(char **args){
+    if(Fork() == CHILD){
+        Execvp(args[0], args);
+    }
+    else{
+        Wait(&status);
+    }
+}
 
 char *shell_read()
 {
@@ -6,15 +24,12 @@ char *shell_read()
     size_t buffer_size;
     char cwd[BUFSIZ];
 
-    if (getcwd(cwd, sizeof(cwd)) == NULL)
-    {
-        perror("getcwd_error");
-        return NULL;
-    }
+    Getcwd(cwd, sizeof(cwd));
+    printf(C "in %s  " RST "λ ", cwd);
 
-    printf(C ":) %s (:" RST "$> ", cwd);
     if (getline(&line, &buffer_size, stdin) == -1)
     {   
+        free(line);
         line = NULL;
         if (feof(stdin))
             printf(R "[EOF]\n" RST);
@@ -25,19 +40,48 @@ char *shell_read()
     return line;
 }
 
+void shell_exec(char **args){
+    if (!args || !args[0])
+        return;
+    int i = 0;
+    const char *curr;
+    while((curr = g_builtins[i].name)){
+        if (strcmp(curr, args[0]) == 0){
+            status = g_builtins[i].function(args);
+            return;
+        }
+        i++;
+    }
 
+    shell_launch(args);
+}
 
-int main(int argument, char **variables)
+int main()
 {
     char *line;
-    // ... rest of the code
+    char **args;
+    char * user = getenv("USER");
 
-    while (1)
+
+    while (0xCE77)
     {
-        printf(" | C-Shell | ");
+        printf("🃏%s ", user);
         line = shell_read();
-        printf("%s\n",line);
+
+        if (line == NULL) 
+            continue;
         
-        // ... rest of the code
+        args = split_line(line);
+
+        if (args == NULL) {
+            free(line);
+            continue;
+        }
+
+        shell_exec(args);
+
+        
+        free(line);
+        free(args);        
     }
 }
